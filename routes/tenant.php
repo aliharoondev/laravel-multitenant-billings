@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Api\Auth\RegisteredUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +20,22 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 */
 
 Route::middleware([
-    'web',
+    'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
+
+    Route::prefix('api')->group(function () {
+
+        Route::post('register', [RegisteredUserController::class, 'store'])->middleware('guest')->name('register');
+
+
+        Route::get('/aaa', function () {
+            dd(\App\Models\User::all());
+            return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        });
+    });
+
     Route::get('/', function () {
         dd(\App\Models\User::all());
         return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
